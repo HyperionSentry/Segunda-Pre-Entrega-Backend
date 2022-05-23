@@ -1,92 +1,84 @@
-/* const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+const {CartsModel} = require('../models/carts');
 
 class Carrito {
-  constructor(nombreArchivo) {
-    this.archivo = nombreArchivo;
-  }
-
-  async getData() {
-    const data = await fs.promises.readFile(this.archivo, 'utf-8');
-    return JSON.parse(data);
-  }
-
-  async saveData(data) {
-    await fs.promises.writeFile(this.archivo, JSON.stringify(data, null, '\t'));
-  }
-
-  async save(miObjeto) {
-
-    await this.saveData(productos);
+  constructor() {
   }
 
   async addToCart(productToAdd) {
-    const cart = await this.getData();
-    const cartProducts = cart.productos
+    const cart = await CartsModel.find();
+    let cartId = (cart[0].id).toString();
+    let cartProducts = cart[0].productos;
+    
+    if (cartProducts[0] == undefined) {
+      cartProducts = [productToAdd]
 
-    cartProducts.push(productToAdd) 
-    cart.productos = cartProducts;
+    } else {
+      cartProducts.push(productToAdd)
 
-    await this.saveData(cart);
+    }
+
+    const cartUpdated = await CartsModel.findByIdAndUpdate(
+      cartId,
+      {productos: cartProducts},
+      { new: true }
+    );
+
+    return cartUpdated
   }
 
 
-  async newCart(miObjeto) {
+  async newCart() {
 
     const nuevoCarrito ={
-    id: uuidv4(),
-    timestamp: Date.now(),
     productos: [],
     }
+    await CartsModel.create(nuevoCarrito)
 
-    await this.saveData(nuevoCarrito);
-
-    return nuevoCarrito.id
   }
 
 
   async listProduct(id) {
-    const carrito = await this.getData();
-    
-    if (id !== carrito.id) {
-      return false;
-    } else {
-      const cartProducts = carrito.productos
-      return cartProducts;
+    try {
+      const carrito = await CartsModel.findById(id);
+      return carrito.productos
+    } catch (error) {
+      console.log(error);    
     }
   }
 
 
   async deleteCart(id) {
-    const carrito = await this.getData();
-
-    if (id !== carrito.id) {
-      return false;
-    } else {
-      const emptyCart = {} 
-      await this.saveData(emptyCart);
-      return true;
-    }     
+    try {
+      await CartsModel.findByIdAndDelete(id);
+      return true
+    } catch (error) {
+      console.log(error);    
+    }
+   
   }
 
 
   async deleteProductFromCart(id, id_prod) {
-    const cart = await this.getData();
+    try {
+      const cart = await CartsModel.findById(id);
+      let cartProducts = cart.productos;
+      if (cartProducts[0] == undefined) {
+        return false
+  
+      } else {
+        const newProductsArray = cartProducts.filter( (product) => product._id != id_prod);
+        const cartUpdated = await CartsModel.findByIdAndUpdate(
+          id,
+          {productos: newProductsArray},
+          { new: true }
+        );
+        return cartUpdated
+      }
 
-    if (id !== cart.id) {
-      return false;
-    } else {
-      const cartProducts = cart.productos
-      const newProductsArray = cartProducts.filter( (product) => product.id != id_prod);
-      
-      cart.productos = newProductsArray;
-
-      await this.saveData(cart);
-
-      return true;
-    }
-    
-}
+    } catch (error) {
+      console.log(error);    
+    }    
+  }
   
 }
 
@@ -94,4 +86,4 @@ const CarritoController = new Carrito('carrito.json');
 
 module.exports = {
     CarritoController: CarritoController,
-  }; */
+  };

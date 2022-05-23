@@ -8,11 +8,11 @@ const productsSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     thumbnail: { type: String, required: true },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true }
 );
 
 
 const ProductsModel = mongoose.model(productsCollectionName, productsSchema);
 
-module.exports = { ProductsModel };
+module.exports = {ProductsModel} ;
 

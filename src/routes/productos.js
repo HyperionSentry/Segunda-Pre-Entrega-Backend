@@ -41,7 +41,6 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', authMiddleware, async (req, res) => {
   const { title, price, thumbnail } = req.body;
-  console.log(req.body);
 
   if (!title || !thumbnail || !price )
     return res.status(400).json({
@@ -53,7 +52,7 @@ router.post('/', authMiddleware, async (req, res) => {
     thumbnail,
     price,
   };
-  
+  console.log(nuevoProducto);
   await ProductosController.save(nuevoProducto);
 
   res.json({
@@ -94,10 +93,29 @@ router.put('/:id',authMiddleware, async (req, res) => {
 router.delete('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params; 
 
-  await ProductosController.deleteById(id)
+  const producto = await ProductosController.deleteById(id)
+
+  if (!producto)
+  return res.status(404).json({
+    msg: 'Producto no encontrado',
+  });
+
   res.json({
     msg: `Producto con id: ${id} Eliminado`,
   });
+
+});
+
+router.delete('/', authMiddleware, async (req, res) => {
+
+  ProductosController.deleteAll(
+    
+  )
+
+  res.json({
+    msg: `Productos eliminados`,
+  });
+
 });
 
 module.exports = router;

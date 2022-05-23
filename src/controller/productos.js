@@ -1,4 +1,4 @@
-const ProductsModel = require('../models/products');
+const {ProductsModel} = require('../models/products');
 
 class Productos {
   constructor() {
@@ -11,9 +11,13 @@ class Productos {
 
 
   async getById(number) {
+    try {
+      const items = await ProductsModel.findById(number);
+      return items
+    } catch (error) {
+      console.log(error);
+    }
 
-    const items = await ProductsModel.find({ id: number });
-    return items
   }
 
   async getAll() {
@@ -22,22 +26,27 @@ class Productos {
   }
 
   async deleteById(number) {
-    
-    await UsuarioModel.findByIdAndDelete(number);
-
+    try {
+      const item = await ProductsModel.findByIdAndDelete(number);
+      return item
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async deleteAll() {
-    await UsuarioModel.deleteMany({})
+    await ProductsModel.deleteMany({})
   }
 
   async update(id, newData) {
     const idDocumento = id;
-  const u1 = await UsuarioModel.findByIdAndUpdate(
+  const item = await ProductsModel.findByIdAndUpdate(
     idDocumento,
     {},
     newData
   );
+
+  return item;
   }
 }
 
